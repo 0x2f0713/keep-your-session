@@ -1,0 +1,21 @@
+{
+    "manifest_version":2,
+    "name":"Keep Your Session",
+    "version":"0.0.1",
+    "description":"Keep Your Chrome Session For Future Use",
+    "browser_action":{
+        "default_title":"Keep Your Session",
+        "default_popup":"popup.html"
+    },
+    "permissions": [
+        "tabs",
+        "cookies",
+        "http://*/*",
+        "https://*/*"
+    ],
+	"background": {
+    	"scripts": ["background.js"],
+    	"persistent": true
+    },
+	"content_security_policy": "script-src 'self' https://stackpath.bootstrapcdn.com https://stackpath.bootstrapcdn.com https://code.jquery.com https://cdnjs.cloudflare.com https://maxcdn.bootstrapcdn.com  https://ajax.googleapis.com blob: filesystem: chrome-extension-resource:; object-src 'self'"
+}

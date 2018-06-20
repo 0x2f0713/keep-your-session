@@ -1,0 +1,73 @@
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+</head>
+
+<body style="width: 600px">
+  <div class="container mt-3">
+    <h2 style='text-align: center'>Keep Your Session</h2>
+    <br>
+    <!-- Nav tabs -->
+    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home"
+          aria-selected="true">Export Your Session</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile"
+          aria-selected="false">Import Your Session</a>
+      </li>
+    </ul>
+    <hr>
+    <div class="tab-content" id="pills-tabContent">
+      <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+        <div class="custom-control custom-checkbox">
+          <input type="checkbox" class="custom-control-input save-cookies" checked="checked" id="customCheck1">
+          <label class="custom-control-label" for="customCheck1">Save your cookies of this session (recommended)</label>
+        </div>
+        <div class="col-md-4 mb-3" style="padding-top: 10px">
+          <input type="password" class="form-control" id="password-encrypt" placeholder="Password for encrypt cookies">
+        </div>
+        <div style="text-align: center">
+          <button type="button" id="exportFile" class="btn btn-primary">Export Your Session</button>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+        <div class="custom-control custom-checkbox">
+          <input type="checkbox" class="custom-control-input export-cookies" checked="checked" id="customCheck2">
+          <label class="custom-control-label" for="customCheck2">Export your cookies</label>
+        </div>
+        <div class="col-md-4 mb-3" style="padding-top: 10px">
+          <input type="password" class="form-control" id="password-decrypt" placeholder="Password for decrypt cookies">
+        </div>
+        <div class="custom-control custom-checkbox">
+          <input type="checkbox" class="custom-control-input" id="open-all-in-new-window">
+          <label class="custom-control-label" for="open-all-in-new-window">Open your session in new windows</label>
+        </div>
+        <div style="text-align: center;padding: 5px 0px">
+          <label for="importFile">
+            <span class="btn btn-primary" role="button">Import Your Session</span>
+            <span>
+              <input type="file" class="form-control-file" id="importFile" style="display:none">
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+
+<link rel="stylesheet" href="dist/css/Lobibox.min.css">
+<script src="popup.js"></script>
+<script src="dist/js/Lobibox.min.js"></script>
+<script src="dist/js/crypt.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/core-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/sha256.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/enc-base64.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script> -->
