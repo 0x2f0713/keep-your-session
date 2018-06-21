@@ -161,45 +161,8 @@ $("input:file#importFile").change(event,
 		reader.onload = function () {
 			try {
 				var text = JSON.parse(reader.result);
-				var count_error = 0
-				/* Import Cookies */
-				if ($("input:checkbox.export-cookies").prop("checked")) {
-					text.map(function (session_cookies) {
-						try {
-							text.map(function (session_cookies) {
-								if ($("input:password#password-encrypt").val() != '') {
-									session_cookies.cookies = JSON.parse(CryptoJS.AES.decrypt(session_cookies.cookies, $("input:password#password-encrypt").val()).toString(CryptoJS.enc.Utf8))
-								}
-								session_cookies.cookies.map(function (cookies) {
-									chrome.cookies.set({
-										url: session_cookies.url,
-										name: cookies.name,
-										value: cookies.value,
-										domain: cookies.domain,
-										path: cookies.path,
-										secure: cookies.secure,
-										httpOnly: cookies.httpOnly,
-										sameSite: cookies.sameSite,
-										expirationDate: cookies.expirationDate,
-										storeId: cookies.storeId
-									});
-									console.log(cookies)
-								})
-							})
-						} catch (error) {
-							if (error.message.search("Cannot read property 'map' of undefined") != -1 && count_error == 0) {
-								Lobibox.notify('error', {
-									msg: "<b>Your session hasn't been had any cookies!</b>",
-									size: "mini",
-									closable: false,
-									closeOnClick: true,
-									sound: false,
-								});
-								count_error++
-							}
-						}
-					})
-
+				if ($("input:checkbox.save-cookies").prop("checked")) {
+					importCookies(text)	
 				}
 				session = []
 				i = 0
@@ -304,3 +267,32 @@ $("input:checkbox.export-cookies").change(
 		}
 	}
 )
+/* Import Cookies */
+function importCookies(session) {
+	session.map(
+		function (session_cookies) {
+			if ($("input:password#password-encrypt").val() != '') {
+				session_cookies.cookies = JSON.parse(
+					CryptoJS.AES.decrypt(session_cookies.cookies, $("input:password#password-encrypt").val()).toString(CryptoJS.enc.Utf8)
+				)
+			}
+			session_cookies.cookies.map(
+				function (cookies) {
+					chrome.cookies.set({
+						url: session_cookies.url,
+						name: cookies.name,
+						value: cookies.value,
+						domain: cookies.domain,
+						path: cookies.path,
+						secure: cookies.secure,
+						httpOnly: cookies.httpOnly,
+						sameSite: cookies.sameSite,
+						expirationDate: cookies.expirationDate,
+						storeId: cookies.storeId
+					});
+					console.log(cookies)
+				}
+			)
+		}
+	)
+}
