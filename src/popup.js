@@ -2,7 +2,7 @@
 var saveAs = saveAs || function (t) {
 	"use strict";
 	if (!(void 0 === t || "undefined" != typeof navigator && /MSIE [1-9]\./.test(navigator.userAgent))) {
-		var e = function () {
+		let e = function () {
 				return t.URL || t.webkitURL || t
 			},
 			n = t.document.createElementNS("http://www.w3.org/1999/xhtml", "a"),
@@ -27,12 +27,12 @@ var saveAs = saveAs || function (t) {
 			},
 			s = function (s, u, l) {
 				l || (s = f(s));
-				var p, v = this,
+				let p, v = this,
 					w = "application/octet-stream" === s.type,
 					m = function () {
 						! function (t, e, n) {
-							for (var r = (e = [].concat(e)).length; r--;) {
-								var o = t["on" + e[r]];
+							for (let r = (e = [].concat(e)).length; r--;) {
+								let o = t["on" + e[r]];
 								if ("function" == typeof o) try {
 									o.call(t, n || t)
 								} catch (t) {
@@ -42,14 +42,14 @@ var saveAs = saveAs || function (t) {
 						}(v, "writestart progress write writeend".split(" "))
 					};
 				if (v.readyState = v.INIT, r) return p = e().createObjectURL(s), void i(function () {
-					var t, e;
+					let t, e;
 					n.href = p, n.download = u, t = n, e = new MouseEvent("click"), t.dispatchEvent(e), m(), d(p), v.readyState = v.DONE
 				}, 0);
 				! function () {
 					if ((a || w && o) && t.FileReader) {
-						var n = new FileReader;
+						let n = new FileReader;
 						return n.onloadend = function () {
-							var e = a ? n.result : n.result.replace(/^data:[^;]*;/, "data:attachment/file;");
+							let e = a ? n.result : n.result.replace(/^data:[^;]*;/, "data:attachment/file;");
 							t.open(e, "_blank") || (t.location.href = e), e = void 0, v.readyState = v.DONE, m()
 						}, n.readAsDataURL(s), void(v.readyState = v.INIT)
 					}
@@ -68,7 +68,7 @@ var saveAs = saveAs || function (t) {
 
 /* createFileName */
 function createFileName(date) {
-	var monthNames = [
+	let monthNames = [
 		"1", "2", "3",
 		"4", "5", "6", "7",
 		"8", "9", "10",
@@ -85,8 +85,8 @@ $("button:button#exportFile").click(
 				chrome.tabs.query({}, function (tab) {
 					// $.each(tab, function (index, value) {
 					// 	second_array.push({name: value.name,  index:  value.index});
-					var tab1 = tab;
-
+					let tab1 = tab;
+					let only = true
 					for (let i = 0; i < tab.length; i++) {
 						delete tab1[i]['audible'];
 						delete tab1[i]['autoDiscardable'];
@@ -110,21 +110,45 @@ $("button:button#exportFile").click(
 										tab1[i].cookies = cookie
 									}
 									if (i == (tab.length - 1)) {
-										var blob = new Blob([JSON.stringify(tab1)], {
-											type: "application/json;charset=utf-8"
-										});
-										saveAs(blob, createFileName(new Date()));
+                                        Lobibox.notify('success', {
+                                            msg: "<b>Export Success!</b>",
+                                            size: "mini",
+                                            closable: false,
+                                            closeOnClick: true,
+                                            sound: false,
+                                            delay: 1200
+                                        });
+                                        setTimeout(function (content) {
+                                            let blob = new Blob([JSON.stringify(content)], {
+                                                type: "application/json;charset=utf-8"
+                                            });
+                                            let date = createFileName(new Date())
+                                            if ($("input:checkbox#sync-session").prop("checked")) {syncSession(date,content)}
+                                            saveAs(blob, date);
+                                        }, 1200, tab1)
 									}
 								}
 							);
 						}
 					}
-					if (!$("input:checkbox.save-cookies").prop("checked")) {
-						var blob = new Blob([JSON.stringify(tab1)], {
-							type: "application/json;charset=utf-8"
-						});
-						saveAs(blob, createFileName(new Date()));
-					}
+                    if (!$("input:checkbox.save-cookies").prop("checked")) {
+                        Lobibox.notify('success', {
+                            msg: "<b>Export Success!</b>",
+                            size: "mini",
+                            closable: false,
+                            closeOnClick: true,
+                            sound: false,
+                            delay: 1200
+                        });
+                        setTimeout(function (content) {
+                            let blob = new Blob([JSON.stringify(content)], {
+                                type: "application/json;charset=utf-8"
+                            });
+                            let date = createFileName(new Date())
+                            if ($("input:checkbox#sync-session").prop("checked")) {syncSession(date,content)}
+                            saveAs(blob, date);
+                        }, 1200, tab1)
+                    }
 				})
 			} else {
 				// alert for a quick demonstration, please create your own user-friendly UI
@@ -156,121 +180,159 @@ $("button:button#exportFile").click(
 /* Read File */
 $("input:file#importFile").change(event,
 	function () {
-		var input = event.target;
-		var reader = new FileReader();
+		let input = event.target;
+		let reader = new FileReader();
 		reader.onload = function () {
-			try {
-				var text = JSON.parse(reader.result);
-				var count_error = 0
-				/* Import Cookies */
-				if ($("input:checkbox.export-cookies").prop("checked")) {
-					text.map(function (session_cookies) {
-						try {
-							text.map(function (session_cookies) {
-								if ($("input:password#password-encrypt").val() != '') {
-									session_cookies.cookies = JSON.parse(CryptoJS.AES.decrypt(session_cookies.cookies, $("input:password#password-encrypt").val()).toString(CryptoJS.enc.Utf8))
-								}
-								session_cookies.cookies.map(function (cookies) {
-									chrome.cookies.set({
-										url: session_cookies.url,
-										name: cookies.name,
-										value: cookies.value,
-										domain: cookies.domain,
-										path: cookies.path,
-										secure: cookies.secure,
-										httpOnly: cookies.httpOnly,
-										sameSite: cookies.sameSite,
-										expirationDate: cookies.expirationDate,
-										storeId: cookies.storeId
-									});
-									console.log(cookies)
-								})
-							})
-						} catch (error) {
-							if (error.message.search("Cannot read property 'map' of undefined") != -1 && count_error == 0) {
-								Lobibox.notify('error', {
-									msg: "<b>Your session hasn't been had any cookies!</b>",
-									size: "mini",
-									closable: false,
-									closeOnClick: true,
-									sound: false,
-								});
-								count_error++
-							}
-						}
-					})
-
-				}
-				session = []
-				i = 0
-				j = text[0].windowId
-				while (i < text.length) {
-					tabs = []
-					while (j == text[i]["windowId"]) {
-						tabs.push(text[i])
-						if (i < text.length)
-							i++
-							if (i == text.length)
-								break
-					}
-					session.push(tabs)
-					if (i != text.length) {
-						j = text[i].windowId
-					}
-				}
-				session.map(
-					function (value, index) {
-						if ((!$("input#open-all-in-new-window").prop("checked")) && (index == 0) && (value[0].incognito == false)) {
-							for (let i = 0; i < value.length; i++) {
-								chrome.tabs.create({
-									url: value[i].url,
-									active: value[i].active,
-									selected: value[i].selected,
-									pinned: value[i].pinned
-								})
-							}
-						} else if (value[0].incognito) {
-							var incognito_array = [];
-							for (let i = 0; i < value.length; i++) {
-								incognito_array.push(value[i].url);
-							}
-							if (incognito_array.length != 0) {
-								chrome.windows.create({
-									'url': incognito_array,
-									'incognito': true
-								})
-
-							}
-						} else {
-							var new_window_array = []
-							for (let i = 0; i < value.length; i++) {
-								new_window_array.push(value[i].url)
-							}
-							chrome.windows.create({
-								url: new_window_array
-							})
-						}
-					}
-				)
-				Lobibox.notify('success', {
-					msg: "<b>Import Succeess!</b>",
-					size: "mini",
-					closable: false,
-					closeOnClick: true,
-					sound: false,
-					delay: 1200
-				});
-			} catch (error) {
-				Lobibox.notify('error', {
-					msg: "<b>Import Failed!</b>",
-					size: "mini",
-					closable: false,
-					closeOnClick: true,
-					sound: false,
-				});
-				console.log(error)
-			}
-		};
+            importSession(reader.result,"offline")
+		}
+		// reader.onload = function () {
+		// 	try {
+		// 		let text = JSON.parse(reader.result);
+		// 		let count_error = true
+		// 		/* Import Cookies */
+		// 		if ($("input:checkbox.export-cookies").prop("checked")) {
+		// 				try {
+		// 					text.map(function (session_cookies) {
+		// 						if ($("input:password#password-decrypt").val().length != 0) {
+         //                            console.log(CryptoJS.AES.decrypt(session_cookies.cookies, $("input:password#password-decrypt").val()))
+		// 							decrypted = CryptoJS.AES.decrypt(session_cookies.cookies, $("input:password#password-decrypt").val()).toString(CryptoJS.enc.Utf8)
+		// 							session_cookies.cookies = JSON.parse(decrypted)
+		// 						}
+		// 						if (session_cookies.cookies == {}) {
+		// 							Lobibox.notify('error', {
+		// 								msg: "<b>Your password does not match</b>",
+		// 								size: "mini",
+		// 								closable: false,
+		// 								closeOnClick: true,
+		// 								sound: false,
+		// 							});
+		// 						}
+		// 						session_cookies.cookies.map(function (cookies) {
+		// 							chrome.cookies.set({
+		// 								url: session_cookies.url,
+		// 								name: cookies.name,
+		// 								value: cookies.value,
+		// 								domain: cookies.domain,
+		// 								path: cookies.path,
+		// 								secure: cookies.secure,
+		// 								httpOnly: cookies.httpOnly,
+		// 								sameSite: cookies.sameSite,
+		// 								expirationDate: cookies.expirationDate,
+		// 								storeId: cookies.storeId
+		// 							});
+		// 						})
+		// 					})
+        //
+		// 				} catch (error) {
+		// 					if (count_error) {
+         //                        switch (error.message) {
+         //                            case "Cannot read property 'map' of undefined":
+         //                                Lobibox.notify('error', {
+         //                                    msg: "<b>Your session hasn't been had any cookies!</b>",
+         //                                    size: "mini",
+         //                                    closable: false,
+         //                                    closeOnClick: true,
+         //                                    sound: false,
+         //                                    delay: 1200
+         //                                });
+         //                                break;
+         //                            case "Malformed UTF-8 data":
+         //                                Lobibox.notify('error', {
+         //                                    msg: "<b>Your password does not match or your session has been corrupted!</b>",
+         //                                    size: "mini",
+         //                                    closable: false,
+         //                                    closeOnClick: true,
+         //                                    sound: false,
+         //                                    delay: 1200
+         //                                });
+         //                                break
+         //                            default:
+         //                                Lobibox.notify('error', {
+         //                                    msg: "<b>Unknown error</b>",
+         //                                    size: "mini",
+         //                                    closable: false,
+         //                                    closeOnClick: true,
+         //                                    sound: false,
+         //                                    delay: 1200
+         //                                });
+         //                                console.log(error)
+         //                        }
+		// 					}
+         //                    count_error = false
+		// 				}
+		// 			}
+		// 		session = []
+		// 		i = 0
+		// 		j = text[0].windowId
+		// 		while (i < text.length) {
+		// 			tabs = []
+		// 			while (j == text[i]["windowId"]) {
+		// 				tabs.push(text[i])
+		// 				if (i < text.length)
+		// 					i++
+		// 					if (i == text.length)
+		// 						break
+		// 			}
+		// 			session.push(tabs)
+		// 			if (i != text.length) {
+		// 				j = text[i].windowId
+		// 			}
+		// 		}
+		// 		setTimeout(session => {
+         //            session.map(
+         //                function (value, index) {
+         //                    if ((!$("input#open-all-in-new-window").prop("checked")) && (index == 0) && (value[0].incognito == false)) {
+         //                        for (let i = 0; i < value.length; i++) {
+         //                            chrome.tabs.create({
+         //                                url: value[i].url,
+         //                                active: value[i].active,
+         //                                selected: value[i].selected,
+         //                                pinned: value[i].pinned
+         //                            })
+         //                        }
+         //                    } else if (value[0].incognito) {
+         //                        let incognito_array = [];
+         //                        for (let i = 0; i < value.length; i++) {
+         //                            incognito_array.push(value[i].url);
+         //                        }
+         //                        if (incognito_array.length != 0) {
+         //                            chrome.windows.create({
+         //                                'url': incognito_array,
+         //                                'incognito': true
+         //                            })
+        //
+         //                        }
+         //                    } else {
+         //                        let new_window_array = []
+         //                        for (let i = 0; i < value.length; i++) {
+         //                            new_window_array.push(value[i].url)
+         //                        }
+         //                        chrome.windows.create({
+         //                            url: new_window_array
+         //                        })
+         //                    }
+         //                }
+         //            )
+		// 		}, 1200, session);
+		// 		// Lobibox.notify('success', {
+		// 		// 	msg: "<b>Import Succeess!</b>",
+		// 		// 	size: "mini",
+		// 		// 	closable: false,
+		// 		// 	closeOnClick: true,
+		// 		// 	sound: false,
+		// 		// 	delay: 1200
+		// 		// });
+		// 	} catch (error) {
+		// 		Lobibox.notify('error', {
+		// 			msg: "<b>Import Failed!</b>",
+		// 			size: "mini",
+		// 			closable: false,
+		// 			closeOnClick: true,
+		// 			sound: false,
+		// 		});
+		// 		console.log(error)
+		// 	}
+		// };
 		reader.readAsText(input.files[0]);
 	}
 )
@@ -304,3 +366,196 @@ $("input:checkbox.export-cookies").change(
 		}
 	}
 )
+// Show option when import
+ $('input:radio[name=import-type]').change(function() {
+        if (this.value == 'import-online') {
+            $("div.import-offline-form").hide(100)
+            $("div.import-online-form").show(100)
+            $("nav.tabs").add('<div class="btn-group-vertical btn-group btn-group-toggle session-online-div"></div>').appendTo("nav.tabs")
+            chrome.storage.sync.get("keep_your_session",function (data) {
+                console.log(data);
+				data.keep_your_session.map(function (session_name,index) {
+                    $("div.session-online-div").add('<label class="btn btn-secondary" id="'+index+'" value="'+index+'"><input type="radio" name="import-radio" id="session-online" value="'+index+'" autocomplete="off"> '+session_name.date+'</label>').appendTo("div.session-online-div")
+
+                })
+                var value;
+                $("input#session-online[name=import-radio]").change(
+                    function () {
+                        $("label.btn.btn-secondary").removeClass("active")
+                        value = this.value
+                        $("label#"+this.value).addClass("active")
+                    }
+                )
+                $("button:submit.import-online").click(function () {
+                    importSession(JSON.stringify(data.keep_your_session[value].value),"online")
+                })
+            })
+        }
+        else if (this.value == 'import-offline') {
+            $("div.import-offline-form").show(100)
+			$("div.session-online-div").remove()
+            $("div.import-online-form").hide(100)
+        }
+    });
+/* import file */
+function importSession(data,where) {
+    try {
+        let text = JSON.parse(data);
+        let count_error = true
+        /* Import Cookies */
+        if ($("input:checkbox.export-cookies").prop("checked")) {
+            try {
+                text.map(function (session_cookies) {
+                    if ($("input:password#password-decrypt-"+where).val().length != 0) {
+                        decrypted = CryptoJS.AES.decrypt(session_cookies.cookies, $("input:password#password-decrypt-"+where).val()).toString(CryptoJS.enc.Utf8)
+                        session_cookies.cookies = JSON.parse(decrypted)
+                    }
+                    if (session_cookies.cookies == {}) {
+                        Lobibox.notify('error', {
+                            msg: "<b>Your password does not match</b>",
+                            size: "mini",
+                            closable: false,
+                            closeOnClick: true,
+                            sound: false,
+                        });
+                    }
+                    session_cookies.cookies.map(function (cookies) {
+                        chrome.cookies.set({
+                            url: session_cookies.url,
+                            name: cookies.name,
+                            value: cookies.value,
+                            domain: cookies.domain,
+                            path: cookies.path,
+                            secure: cookies.secure,
+                            httpOnly: cookies.httpOnly,
+                            sameSite: cookies.sameSite,
+                            expirationDate: cookies.expirationDate,
+                            storeId: cookies.storeId
+                        });
+                    })
+                })
+
+            } catch (error) {
+                if (count_error) {
+                    switch (error.message) {
+                        case "Cannot read property 'map' of undefined":
+                            Lobibox.notify('error', {
+                                msg: "<b>Your session hasn't been had any cookies!</b>",
+                                size: "mini",
+                                closable: false,
+                                closeOnClick: true,
+                                sound: false,
+                                delay: 1200
+                            });
+                            break;
+                        case "Malformed UTF-8 data":
+                            Lobibox.notify('error', {
+                                msg: "<b>Your password does not match or your session has been corrupted!</b>",
+                                size: "mini",
+                                closable: false,
+                                closeOnClick: true,
+                                sound: false,
+                                delay: 1200
+                            });
+                            break
+                        default:
+                            Lobibox.notify('error', {
+                                msg: "<b>Unknown error</b>",
+                                size: "mini",
+                                closable: false,
+                                closeOnClick: true,
+                                sound: false,
+                                delay: 1200
+                            });
+                            console.log(error)
+                    }
+                }
+                count_error = false
+            }
+        }
+        session = []
+        i = 0
+        j = text[0].windowId
+        while (i < text.length) {
+            tabs = []
+            while (j == text[i]["windowId"]) {
+                tabs.push(text[i])
+                if (i < text.length)
+                    i++
+                if (i == text.length)
+                    break
+            }
+            session.push(tabs)
+            if (i != text.length) {
+                j = text[i].windowId
+            }
+        }
+        setTimeout(session => {
+            session.map(
+                function (value, index) {
+                    if ((!$("input#open-all-in-new-window-"+where).prop("checked")) && (index == 0) && (value[0].incognito == false)) {
+                        for (let i = 0; i < value.length; i++) {
+                            chrome.tabs.create({
+                                url: value[i].url,
+                                active: value[i].active,
+                                selected: value[i].selected,
+                                pinned: value[i].pinned
+                            })
+                        }
+                    } else if (value[0].incognito) {
+                        let incognito_array = [];
+                        for (let i = 0; i < value.length; i++) {
+                            incognito_array.push(value[i].url);
+                        }
+                        if (incognito_array.length != 0) {
+                            chrome.windows.create({
+                                'url': incognito_array,
+                                'incognito': true
+                            })
+
+                        }
+                    } else {
+                        let new_window_array = []
+                        for (let i = 0; i < value.length; i++) {
+                            new_window_array.push(value[i].url)
+                        }
+                        chrome.windows.create({
+                            url: new_window_array
+                        })
+                    }
+                }
+            )
+        }, 1200, session);
+        // Lobibox.notify('success', {
+        // 	msg: "<b>Import Succeess!</b>",
+        // 	size: "mini",
+        // 	closable: false,
+        // 	closeOnClick: true,
+        // 	sound: false,
+        // 	delay: 1200
+        // });
+    } catch (error) {
+        Lobibox.notify('error', {
+            msg: "<b>Import Failed!</b>",
+            size: "mini",
+            closable: false,
+            closeOnClick: true,
+            sound: false,
+        });
+        console.log(error)
+    }
+    console.log(data)
+};
+
+// sync your session
+function syncSession(date,content) {
+    chrome.storage.sync.get(function(cfg) {
+        if(typeof(cfg["keep_your_session"]) !== 'undefined' && cfg["keep_your_session"] instanceof Array) {
+            cfg["keep_your_session"].push({date:date, value:content});
+        } else {
+            cfg["keep_your_session"] = [{date:date, value:content}];
+        }
+        chrome.storage.sync.set(cfg);
+        console.log(cfg)
+    });
+}

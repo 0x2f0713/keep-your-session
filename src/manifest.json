@@ -5,17 +5,24 @@
     "description":"Keep Your Chrome Session For Future Use",
     "browser_action":{
         "default_title":"Keep Your Session",
-        "default_popup":"popup.html"
+        "default_popup":"popup.html",
+        "default_icon": "dist/keep-512.png"
+    },
+    "icons": {
+      "128":"dist/keep-128.png",
+      "256":"dist/keep-256.png",
+      "512":"dist/keep-512.png"
     },
     "permissions": [
         "tabs",
         "cookies",
         "http://*/*",
-        "https://*/*"
+        "https://*/*",
+        "storage"
     ],
 	"background": {
     	"scripts": ["background.js"],
     	"persistent": true
     },
-	"content_security_policy": "script-src 'self' https://stackpath.bootstrapcdn.com https://stackpath.bootstrapcdn.com https://code.jquery.com https://cdnjs.cloudflare.com https://maxcdn.bootstrapcdn.com  https://ajax.googleapis.com blob: filesystem: chrome-extension-resource:; object-src 'self'"
+	"content_security_policy": "script-src 'self' 'unsafe-eval' https://stackpath.bootstrapcdn.com https://stackpath.bootstrapcdn.com https://code.jquery.com https://cdnjs.cloudflare.com https://maxcdn.bootstrapcdn.com  https://ajax.googleapis.com blob: filesystem: chrome-extension-resource:; object-src 'self'"
 }

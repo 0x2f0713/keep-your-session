@@ -1,4 +1,4 @@
-function BadgeText() {
+ function BadgeText() {
     chrome.windows.getAll(
         {populate:true},
         function (windows) {
@@ -18,28 +18,34 @@ function BadgeText() {
                     'text':number
                 }
             )
-            chrome.browserAction.setTitle({title:"Đang mở " + number + " tabs - Keep Your Session" })
+            chrome.browserAction.setTitle({title:"Đang mở " + number + " tab - Keep Your Session" })
         }
     )
+     chrome.storage.sync.get(function (data) {
+         console.log(data)
+     })
+     chrome.storage.sync.get(function (data) {
+         console.log(data)
+     })
 }
 BadgeText();
 chrome.tabs.onCreated.addListener(
-    function (params) {
+    function () {
         BadgeText();
     }
-)
+);
 chrome.windows.onRemoved.addListener(
     function () {
         BadgeText();
     }
-)
+);
 chrome.tabs.onCreated.addListener(
-    function (param) {
+    function () {
         BadgeText();
     }
-)
+);
 chrome.tabs.onRemoved.addListener(
-    function (param) {
+    function () {
         BadgeText();
     }
-)
+);
